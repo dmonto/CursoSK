@@ -1,0 +1,2 @@
+
+Me llamo {{$nombre}}! Salúdame y hablame de plugins semánticos en Semantic Kernel.

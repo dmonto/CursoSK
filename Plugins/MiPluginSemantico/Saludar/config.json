@@ -1,0 +1,17 @@
+
+{
+  "schema": 1,
+  "type": "completion",
+  "description": "Genera un saludo personalizado.",
+  "completion": {
+    "max_tokens": 100,
+    "temperature": 0.7
+  },
+  "input_variables": [
+    {
+      "name": "nombre",
+      "description": "El nombre de la persona a saludar.",
+      "required": true
+    }
+  ]
+}
