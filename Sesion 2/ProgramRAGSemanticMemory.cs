@@ -46,6 +46,11 @@ class Program
             text: "Con Semantic Kernel puedes crear agentes, planificadores y usar memoria semántica.",
             id: "info2"
         );
+        await memory.SaveInformationAsync(
+            collection: MemoryCollectionName,
+            text: "Mi gato es negro.",
+            id: "info3"
+        );
         Console.WriteLine("Información guardada.");
 
         var query = "¿Qué puedo hacer con Semantic Kernel?";
@@ -54,8 +59,8 @@ class Program
         var results = memory.SearchAsync(
             collection: MemoryCollectionName,
             query: query,
-            limit: 2,
-            minRelevanceScore: 0.7
+            limit: 3,
+            minRelevanceScore: 0.1
         );
 
         int i = 0;

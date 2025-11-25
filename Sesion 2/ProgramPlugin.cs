@@ -27,7 +27,8 @@ class Program
         );
 
         // Agrega la función al kernel dentro de un nuevo plugin llamado "MiPlugin"
-        kernel.Plugins.Add(saludaFunction, "MiPlugin");
+        var miPlugin = KernelPluginFactory.CreateFromFunctions("MiPlugin", new[] { saludaFunction });
+        kernel.Plugins.Add(miPlugin);
 
         // Ahora puedes invocar la función
         var result = await kernel.InvokeAsync("MiPlugin", "Saluda", new() { { "input", "Mundo" } });
