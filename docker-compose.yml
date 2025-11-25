@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  atlas_local:
+    image: mongodb/mongodb-atlas-local:8
+    container_name: atlas_local
+    restart: unless-stopped
+    ports:
+      - "56559:27017"          # Puerto local para conectar
+    volumes:
+      - atlas_data:/data/db
+      - atlas_config:/data/configdb
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/runner", "healthcheck"]
+      interval: 30s
+      timeout: 60s
+      retries: 3
+
+volumes:
+  atlas_data:
+  atlas_config:
