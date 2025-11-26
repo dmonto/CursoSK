@@ -14,7 +14,7 @@ class Program
         var builder = Kernel.CreateBuilder();
         
         builder.AddGoogleAIEmbeddingGenerator(
-                modelId: "gemini-embedding-001",
+                modelId: "text-gemini-001",
                 apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY")!);
         
         var kernel = builder.Build();

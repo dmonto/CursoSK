@@ -30,7 +30,7 @@ class Program
         var collection = database.GetCollection<EmbeddingDocument>("Embeddings");
 
         // 3. El texto a vectorizar
-        string texto = "Las lavadoras consumen energia.";
+        string texto = "La fusión es una tecnología nuclear.";
 
         // 4. Generar embedding
         var embedding = await embeddingGenerator.GenerateAsync(texto);

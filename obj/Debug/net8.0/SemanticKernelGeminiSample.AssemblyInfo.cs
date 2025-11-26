@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SemanticKernelGeminiSample")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+668b0bc46a21a2ed642ca971d9b2439b49ce589f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f8284a41f31c855d08dbc282278e169ed2498277")]
 [assembly: System.Reflection.AssemblyProductAttribute("SemanticKernelGeminiSample")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SemanticKernelGeminiSample")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

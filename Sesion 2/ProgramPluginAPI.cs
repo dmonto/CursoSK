@@ -3,19 +3,24 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.Google;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 public class ApiPlugin
 {
     private readonly HttpClient _httpClient = new HttpClient();
 
     [KernelFunction("ObtenerDatos")] 
-    public async Task<string> LlamarApiExternaAsync(string url)
+    public async Task<Dictionary<string, string>> LlamarApiExternaAsync(string url)
     {
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
         string contenido = await response.Content.ReadAsStringAsync();
-        return contenido;
+        var jsonDoc = JsonDocument.Parse(contenido);
+        var resultado = new Dictionary<string, string>();
+        resultado["titulo"] = jsonDoc.RootElement[0].GetProperty("title").GetString();
+        resultado["cuerpo"] = jsonDoc.RootElement[0].GetProperty("body").GetString();
+        return resultado;
     }
 }
 
@@ -39,10 +44,13 @@ class Program
         // Importar el plugin nativo en el kernel usando ImportPluginFromObject
         kernel.ImportPluginFromObject(new ApiPlugin(), "ApiExternas");
 
-        var context = new KernelArguments() { {"url", "https://jsonplaceholder.typicode.com/todos/1"} };
+        var context = new KernelArguments() { {"url", "https://jsonplaceholder.typicode.com/posts"} };
 
-        var result = await kernel.InvokeAsync("ApiExternas", "ObtenerDatos", context);
+        Dictionary<string, string> result = (await kernel.InvokeAsync("ApiExternas", "ObtenerDatos", context)).GetValue<Dictionary<string, string>>();
+        context["titulo"] = result["titulo"];
+        context["cuerpo"] = result["cuerpo"]; 
 
-        Console.WriteLine(result.GetValue<string>());
+        foreach (var item in context)
+        {   Console.WriteLine($"{item.Key}: {item.Value}");}
     }
 }

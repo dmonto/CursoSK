@@ -28,7 +28,7 @@ class Program
 
         var kernel = builder.Build();
 
-        var embeddingGenerator = kernel.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+        //var embeddingGenerator = kernel.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
 
         // Obtener la memoria semántica
         var memory = kernel.Services.GetRequiredService<ISemanticTextMemory>();
@@ -53,7 +53,7 @@ class Program
         );
         Console.WriteLine("Información guardada.");
 
-        var query = "¿Qué puedo hacer con Semantic Kernel?";
+        var query = "Hablame de animales";
         Console.WriteLine($"Buscando información relevante para: '{query}'\n");
 
         var results = memory.SearchAsync(
