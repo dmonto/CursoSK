@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("SemanticKernelGeminiSample")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("SK3-PersistenteKernel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f45949dfcb9cbc9943527948b9b1c764c3557cc9")]
-[assembly: System.Reflection.AssemblyProductAttribute("SemanticKernelGeminiSample")]
-[assembly: System.Reflection.AssemblyTitleAttribute("SemanticKernelGeminiSample")]
+[assembly: System.Reflection.AssemblyProductAttribute("SK3-PersistenteKernel")]
+[assembly: System.Reflection.AssemblyTitleAttribute("SK3-PersistenteKernel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.

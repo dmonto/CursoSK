@@ -58,24 +58,30 @@ public class SupervisorWorkersExample
         };
 
 #pragma warning disable SKEXP0110
-        var group = new AgentGroupChat(
-            supervisorAgent,
+       AgentGroupChat agentGroupChat =
+            new(supervisorAgent,
             stockAgent,
             reposicionAgent,
             distribucionAgent
-        );
+        )
+        {
+            ExecutionSettings =
+            {
+                TerminationStrategy = { MaximumIterations = 10}
+            }
+        };        
 #pragma warning restore SKEXP0110
 
         while (true)
         {
-            Console.Write("\nUsuario (o 'salir'): ");
+            Console.Write("\nPetición al Supervisor (o 'salir'): ");
             var pregunta = Console.ReadLine();
             if (string.Equals(pregunta, "salir", StringComparison.OrdinalIgnoreCase))
                 break;
 
-            group.AddChatMessage(new ChatMessageContent(AuthorRole.User, pregunta));
+            agentGroupChat.AddChatMessage(new ChatMessageContent(AuthorRole.User, pregunta));
 
-            await foreach (var msg in group.InvokeAsync())
+            await foreach (var msg in agentGroupChat.InvokeAsync())
             {
                 Console.WriteLine($"[{msg.AuthorName}] {msg.Content}");
             }

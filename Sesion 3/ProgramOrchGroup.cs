@@ -58,14 +58,21 @@ public class MultiAgentExample
 #pragma warning disable SKEXP0110 // Deshabilitar la advertencia para la clase experimental AgentGroupChat
 
         // Crear un chat grupal para coordinar los agentes
-        var agentGroupChat = new AgentGroupChat(
+        AgentGroupChat agentGroupChat =
+        new(            prediccionReposicionAgent,
             consultaStockAgent,
-            prediccionReposicionAgent,
             optimizacionDistribucionAgent
-        );
-
+)
+        {
+            //Override default execution settings
+            ExecutionSettings =
+            {
+                TerminationStrategy = { MaximumIterations = 10 }
+            }
+        };
+        
         // Mensaje inicial que dispara la orquestación
-        string s_preguntaInicial = "Analizar el estado del producto con ID 'producto123'";
+        string s_preguntaInicial = "Analizar el estado del producto con ID 'producto123' y si es necesaria reposición y optimización de distribución.";
         Console.WriteLine($"Iniciando orquestación con la pregunta: '{s_preguntaInicial}'\n");
 
         // Añadir el mensaje al historial del chat
@@ -79,8 +86,7 @@ public class MultiAgentExample
             Console.WriteLine($"[{content.AuthorName}]: {content.Content}");
             resultadoFinal = content; // Guardamos el último mensaje de la conversación
         }
-        Console.WriteLine("--------------------------------------\n");
-
+        
 #pragma warning restore SKEXP0110 // Restaurar la advertencia
 
         // --- RESULTADO FINAL ---

@@ -13,7 +13,7 @@ public class StockPlugin
 {
     [KernelFunction("obtener_stock")]
     [Description("Obtiene el stock de un producto por su ID")]
-    public int ObtenerStock(
+    private int ObtenerStock(
         [Description("ID del producto")] string productoId)
     {
         // Lógica real: DB, API, etc. Aquí mock:
@@ -25,6 +25,12 @@ public class StockPlugin
 
 public class AgentWithFunctionExample
 {
+    /// <summary>
+    /// Punto de entrada principal de la aplicación.
+    /// Configura y ejecuta un agente de chat de Semantic Kernel que utiliza un plugin de stock
+    /// para responder a las preguntas del usuario sobre el inventario de productos.
+    /// </summary>
+    /// <returns>Un <see cref="Task"/> que representa la operación asincrónica de la ejecución del chat.</returns>
     public static async Task Main()
     {
         var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
@@ -57,7 +63,7 @@ public class AgentWithFunctionExample
 
         while (true)
         {
-            Console.Write("\nPregunta (o 'salir'): ");
+            Console.Write("\nPetición (o 'salir'): ");
             var pregunta = Console.ReadLine();
             if (string.Equals(pregunta, "salir", StringComparison.OrdinalIgnoreCase))
                 break;
