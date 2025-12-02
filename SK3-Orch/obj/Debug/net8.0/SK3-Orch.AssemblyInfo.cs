@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SK3-Orch")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f45949dfcb9cbc9943527948b9b1c764c3557cc9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+abe5d0da90208f1555e4e3c26e2203be86e9563d")]
 [assembly: System.Reflection.AssemblyProductAttribute("SK3-Orch")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SK3-Orch")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

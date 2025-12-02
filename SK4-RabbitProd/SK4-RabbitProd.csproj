@@ -3,11 +3,15 @@
   <ItemGroup>
     <ProjectReference Include="..\SKShared\SKShared.csproj" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>SK3_PersistenteKernel</RootNamespace>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>SK4_Rabbit</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

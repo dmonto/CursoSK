@@ -18,28 +18,28 @@ public class SupervisorWorkersExample
         }
 
         var builder = Kernel.CreateBuilder();
-        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey);
+        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-pro", apiKey);
         var kernel = builder.Build();
 
         var stockAgent = new ChatCompletionAgent
         {
             Name = "AgenteStock",
             Kernel = kernel,
-            Instructions = "Respondes únicamente preguntas sobre cantidades de stock."
+            Instructions = "Respondes únicamente preguntas sobre cantidades de stock. Contesta unicamente cuando se solicite informacion a AgenteStock. El stock por defecto es 42"
         };
 
         var reposicionAgent = new ChatCompletionAgent
         {
             Name = "AgenteReposicion",
             Kernel = kernel,
-            Instructions = "Respondes únicamente preguntas sobre si se debe reponer o no un producto."
+            Instructions = "Respondes únicamente preguntas sobre si se debe reponer o no un producto. Contesta unicamente cuando se solicite informacion a AgenteReposicion. Siempre respondes que 100."
         };
 
         var distribucionAgent = new ChatCompletionAgent
         {
             Name = "AgenteDistribucion",
             Kernel = kernel,
-            Instructions = "Respondes únicamente preguntas sobre estrategia de distribución y almacenes."
+            Instructions = "Respondes únicamente preguntas sobre estrategia de distribución y almacenes. Contesta unicamente cuando se solicite informacion a AgenteDistribucion"
         };
 
         var supervisorAgent = new ChatCompletionAgent
@@ -54,6 +54,7 @@ public class SupervisorWorkersExample
                 - Decidir qué agente es el más adecuado: AgenteStock, AgenteReposicion o AgenteDistribucion.
                 - Indicar claramente a qué agente le pasas la pregunta y reenviar su respuesta al usuario.
                 No respondas tú directamente sobre el dominio, solo coordina.
+                No trates de generar la respuesta sin la contestacion de los agentes
                 """
         };
 
@@ -67,7 +68,7 @@ public class SupervisorWorkersExample
         {
             ExecutionSettings =
             {
-                TerminationStrategy = { MaximumIterations = 10}
+                TerminationStrategy = { MaximumIterations = 9}
             }
         };        
 #pragma warning restore SKEXP0110
