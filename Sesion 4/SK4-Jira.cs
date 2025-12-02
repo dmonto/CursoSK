@@ -158,7 +158,7 @@ class Program
             Console.WriteLine("Error: Falta la variable de entorno GEMINI_API_KEY");
             return;
         }
-        builder.AddGoogleAIGeminiChatCompletion("gemini-1.5-flash", apiKey);
+        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey);
 
         // 2. Configurar servicios y dependencias para los plugins
         // Crear configuración para Jira en memoria

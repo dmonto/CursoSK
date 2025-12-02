@@ -133,7 +133,7 @@ public class Program
         }
 
         var builder = Kernel.CreateBuilder();
-        builder.AddGoogleAIGeminiChatCompletion("gemini-1.5-flash", apiKey);
+        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey);
         Kernel kernel = builder.Build();
 
         try
@@ -150,7 +150,6 @@ public class Program
             return;
         }
 
-        // --- INVOCACIÓN DIRECTA DE LA FUNCIÓN DEL PLUGIN ---
         Console.WriteLine("\nIntentando crear un evento directamente...");
 
         // Definimos los argumentos para la función 'CreateCalendarEvent'

@@ -17,7 +17,7 @@ class Program
             Console.WriteLine("Error: Falta la variable de entorno GEMINI_API_KEY");
             return;
         }
-        builder.AddGoogleAIGeminiChatCompletion("gemini-1.5-flash", apiKey);
+        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey);
         var kernel = builder.Build();
 
         // --- CONFIGURACIÓN PARA EL PLUGIN OPENAPI ---

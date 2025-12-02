@@ -8,7 +8,6 @@ using System.Text.Json.Serialization; // Necesario para [JsonPropertyName]
 using System.Collections.Generic; // Necesario para List<T>
 using System.Linq; // Necesario para .FirstOrDefault()
 
-// --- INICIO: DEFINICIÓN DEL MODELO DE DATOS ---
 // Mapea la estructura del JSON de la API a un objeto C#.
 public class Post
 {
@@ -24,7 +23,6 @@ public class Post
     [JsonPropertyName("body")]
     public string Body { get; set; } = string.Empty;
 }
-// --- FIN: DEFINICIÓN DEL MODELO DE DATOS ---
 
 public class ClimaPlugin
 {
