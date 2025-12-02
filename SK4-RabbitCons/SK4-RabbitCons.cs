@@ -32,7 +32,7 @@ public class Program
         var builder = Kernel.CreateBuilder();
         
         // Configurar Gemini como en el resto del repositorio
-        builder.AddGoogleAIGeminiChatCompletion("gemini-1.5-flash", apiKey);
+        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey);
 
         // Registrar el Kernel en el contenedor de servicios para que pueda ser construido y usado
         builder.Services.AddSingleton(provider => builder.Build());

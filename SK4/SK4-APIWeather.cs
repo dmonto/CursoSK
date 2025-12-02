@@ -34,13 +34,14 @@ public class ClimaPlugin
         _client.BaseAddress = new Uri("https://api.openweathermap.org/data/2.5/");
     }
 
+    [KernelFunction("ObtenerClima")]
     public async Task<string> ObtenerClimaAsync(string ciudad)
     {
-        var apiKey = "tu_api_key";
+        var apiKey = "Copiar de GitBook";
         var response = await _client.GetAsync($"weather?q={ciudad}&appid={apiKey}&units=metric");
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        return content; // o parsear JSON para resumen
+        return content; 
     }
 }
 class Program
@@ -65,7 +66,7 @@ class Program
 
         var context = new KernelArguments() { {"url", "https://jsonplaceholder.typicode.com/posts"} };
 
-        Dictionary<string, string>? result = (await kernel.InvokeAsync("ApiExternas", "ObtenerDatos", context)).GetValue<Dictionary<string, string>>();
+        Dictionary<string, string>? result = (await kernel.InvokeAsync("Api", "ObtenerDatos", context)).GetValue<Dictionary<string, string>>();
         
         if (result != null && result.ContainsKey("titulo") && result.ContainsKey("cuerpo"))
         {

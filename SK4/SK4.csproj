@@ -14,9 +14,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="service-account-key.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="service-account-key.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Paquetes de Google actualizados a versiones compatibles con .NET 8 -->
-    <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
-    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.68.0.3429" />
+    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.72.0.3953" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.72.0.3970" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
     
     <!-- NUEVO: Paquete para el planificador Handlebars -->

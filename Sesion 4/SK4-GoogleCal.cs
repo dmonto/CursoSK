@@ -13,7 +13,7 @@ public class GoogleCalendarPlugin
     private readonly CalendarService _calendarService;
     private readonly string _credentialsPath;
 
-    public GoogleCalendarPlugin(string credentialsPath = "credentials.json")
+    public GoogleCalendarPlugin(string credentialsPath = "service-account-key.json")
     {
         _credentialsPath = credentialsPath;
         _calendarService = InitializeCalendarService().GetAwaiter().GetResult();
@@ -21,15 +21,14 @@ public class GoogleCalendarPlugin
 
     private async Task<CalendarService> InitializeCalendarService()
     {
-        UserCredential credential;
+        string keyFilePath = "service-account-key.json";
+        string[] scopes = { CalendarService.Scope.Calendar };
 
-        using var stream = new FileStream(_credentialsPath, FileMode.Open, FileAccess.Read);
-        credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-            GoogleClientSecrets.FromStream(stream).Secrets,
-            new[] { CalendarService.Scope.Calendar },
-            "user",
-            CancellationToken.None,
-            new FileDataStore("Calendar.Api.Auth.Store"));
+        GoogleCredential credential;
+        using (var stream = new FileStream(keyFilePath, FileMode.Open, FileAccess.Read))
+        {
+            credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
+        }
 
         return new CalendarService(new BaseClientService.Initializer()
         {

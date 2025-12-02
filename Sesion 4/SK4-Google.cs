@@ -9,7 +9,6 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Microsoft.SemanticKernel;
 
-// --- PASO 1: CREAR EL PLUGIN NATIVO ---
 public class GoogleDrivePlugin
 {
     private readonly DriveService _driveService;

@@ -2,6 +2,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.OpenApi;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ class Program
             Console.WriteLine("Error: Falta la variable de entorno GEMINI_API_KEY");
             return;
         }
-        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey);
+        builder.AddGoogleAIGeminiChatCompletion("gemini-2.5-flash", apiKey); // Usando un modelo más reciente
         var kernel = builder.Build();
 
         // --- CONFIGURACIÓN PARA EL PLUGIN OPENAPI ---
@@ -37,23 +38,22 @@ class Program
         {
             AuthCallback = async (request, cancellationToken) =>
             {
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiToken);
+                // Solo añade el header si el token existe
+                if (!string.IsNullOrEmpty(apiToken))
+                {
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiToken);
+                }
             }
         };
 
         try
         {
             // --- IMPORTAR EL PLUGIN DESDE UN ARCHIVO OPENAPI LOCAL ---
+            // CORRECCIÓN: El objeto 'executionParameters' se pasa como el último argumento.
             var plugin = await kernel.ImportPluginFromOpenApiAsync(
                 pluginName: "MiApiPlugin",
                 filePath: "mi-api-openapi.json",
-                new OpenApiFunctionExecutionParameters(httpClient)
-                {
-                    AuthCallback = async (request, cancellationToken) =>
-                    {
-                        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiToken);
-                    }
-                }
+                executionParameters
             );
 
             Console.WriteLine("Plugin 'MiApiPlugin' cargado correctamente desde OpenAPI.");
@@ -72,7 +72,5 @@ class Program
         {
             Console.WriteLine($"Error al cargar o ejecutar el plugin OpenAPI: {ex.Message}");
         }
-
-        await Task.CompletedTask;
     }
 }
