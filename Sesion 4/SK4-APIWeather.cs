@@ -37,7 +37,7 @@ public class ClimaPlugin
     [KernelFunction("ObtenerClima")]
     public async Task<string> ObtenerClimaAsync(string ciudad)
     {
-        var apiKey = "Copiar de GitBook";
+        var apiKey = "ac889de4aafded1b754182bfc1170b25";
         var response = await _client.GetAsync($"weather?q={ciudad}&appid={apiKey}&units=metric");
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
@@ -62,11 +62,11 @@ class Program
         Kernel kernel = builder.Build();
 
         // Importar el plugin nativo en el kernel usando ImportPluginFromObject
-        kernel.ImportPluginFromObject(new ApiPlugin(), "ApiExternas");
+        kernel.ImportPluginFromObject(new ClimaPlugin(), "ApiExternas");
 
-        var context = new KernelArguments() { {"url", "https://jsonplaceholder.typicode.com/posts"} };
+        var context = new KernelArguments() { {"ciudad", "Madrid"} };
 
-        Dictionary<string, string>? result = (await kernel.InvokeAsync("Api", "ObtenerDatos", context)).GetValue<Dictionary<string, string>>();
+        string result = (await kernel.InvokeAsync("ApiExternas", "ObtenerClima", context)).GetValue<string>();
         
         if (result != null && result.ContainsKey("titulo") && result.ContainsKey("cuerpo"))
         {

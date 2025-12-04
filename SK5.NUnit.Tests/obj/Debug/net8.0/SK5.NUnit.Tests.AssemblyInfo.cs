@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("SK4")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("SK5.NUnit.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fffccc54f000033f63af09c8ecc2d7f073116dbf")]
-[assembly: System.Reflection.AssemblyProductAttribute("SK4")]
-[assembly: System.Reflection.AssemblyTitleAttribute("SK4")]
+[assembly: System.Reflection.AssemblyProductAttribute("SK5.NUnit.Tests")]
+[assembly: System.Reflection.AssemblyTitleAttribute("SK5.NUnit.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.
