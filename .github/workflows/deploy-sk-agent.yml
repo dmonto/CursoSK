@@ -1,0 +1,57 @@
+name: CI/CD SK Agent to GKE
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  IMAGE: ${{ secrets.ARTIFACT_REGISTRY_REPO }}/sk-agent
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with: { dotnet-version: '8.0.x' }
+    - name: Restore
+      run: dotnet restore
+    - name: Test Agents
+      run: dotnet test --logger trx --results-directory ./TestResults
+    - name: Build
+      run: dotnet publish -c Release -o ./publish
+
+  deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+    - uses: actions/checkout@v4
+    - id: 'auth'
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: 'projects/tu-proyecto/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+        service_account: 'github-actions-sa@tu-proyecto.iam.gserviceaccount.com'
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+    - name: Build and push Docker
+      run: |
+        IMAGE_TAG=$(date +%Y%m%d)-$(git rev-parse --short HEAD)
+        docker build -t $IMAGE:$IMAGE_TAG -t $IMAGE:latest .
+        docker push $IMAGE:$IMAGE_TAG
+        docker push $IMAGE:latest
+        sed -i 's|image: .*|image: '"$IMAGE:$IMAGE_TAG"'|' k8s/deployment.yaml
+    - name: Deploy to GKE
+      run: kubectl apply -f k8s/
+    - name: Test deployment
+      run: kubectl rollout status deployment/sk-agent --timeout=300s
