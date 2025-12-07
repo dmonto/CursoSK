@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  acrName: 'polaracr'  # Cambia por tu ACR
+  acrName: 'polaracr'  
   containerRegistry: 'polaracr.azurecr.io'
   imageRepository: 'sk-gemini'
   containerAppName: 'sk-gemini-app'
@@ -28,7 +28,7 @@ stages:
         command: 'buildAndPush'
         repository: '$(imageRepository)'
         dockerfile: '$(dockerfilePath)'
-        containerRegistry: 'ACR Connection'
+        containerRegistry: 'sk-prod-rg'
         tags: |
           $(tag)
           latest
