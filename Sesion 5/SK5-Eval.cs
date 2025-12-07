@@ -79,10 +79,10 @@ public class AgentEvaluationTests
             modelId: "gemini-2.5-flash", 
             apiKey: apiKey!
         );
-#pragma warning restore SKEXP0070
-        builder.AddGoogleAIEmbeddingGenerator(
+        builder.AddGoogleAIEmbeddingGeneration(
                 modelId: "gemini-embedding-001",
                 apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY")!);
+#pragma warning restore SKEXP0070
         _kernel = builder.Build();
             
 
@@ -149,10 +149,10 @@ public static class EvaluadorSimilaridadCoseno
             modelId: "gemini-2.5-flash",
             apiKey: apiKey!
         );
-#pragma warning restore SKEXP0070
-        builder.AddGoogleAIEmbeddingGenerator(
+        builder.AddGoogleAIEmbeddingGeneration(
                 modelId: "gemini-embedding-001",
                 apiKey: Environment.GetEnvironmentVariable("GEMINI_API_KEY")!);
+#pragma warning restore SKEXP0070
         var kernel = builder.Build();
 
         // --- GENERACIÓN DE EMBEDDINGS ---

@@ -89,7 +89,9 @@ public class PromptTests : IAsyncLifetime
             """;
         var listProjectsFunction = _kernel.CreateFunctionFromPrompt(promptTemplate);
 
-        var arguments = new KernelArguments
+        // --- CORRECCIÓN ---
+        // Las variables con ' en la plantilla se pasan como argumentos normales, sin el '.
+        var arguments = new KernelArguments()
         {
             { "user", "Diego" },
             { "pat", "abc123-pat-mock" }
@@ -124,7 +126,10 @@ public class PromptTests : IAsyncLifetime
             Crea el work item correspondiente en Azure DevOps.
             """;
         var function = _kernel.CreateFunctionFromPrompt(promptTemplate);
-        var arguments = new KernelArguments
+        
+        // --- CORRECCIÓN ---
+        // Las variables se añaden directamente a los argumentos.
+        var arguments = new KernelArguments()
         {
             { "user", user },
             { "project", project },

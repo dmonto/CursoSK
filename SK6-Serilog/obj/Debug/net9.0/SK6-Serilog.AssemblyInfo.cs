@@ -10,12 +10,13 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("SK5.NUnit")]
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("87c4ccf5-8693-485c-b7e4-e126c9d95667")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("SK6-Serilog")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d5218835fa49540bfef57b37df42302f2b55954")]
-[assembly: System.Reflection.AssemblyProductAttribute("SK5.NUnit")]
-[assembly: System.Reflection.AssemblyTitleAttribute("SK5.NUnit")]
+[assembly: System.Reflection.AssemblyProductAttribute("SK6-Serilog")]
+[assembly: System.Reflection.AssemblyTitleAttribute("SK6-Serilog")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.

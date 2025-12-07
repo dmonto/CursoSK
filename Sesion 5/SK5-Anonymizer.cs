@@ -16,7 +16,7 @@ public class Program
         {
             "Hola Maria Lopez maria.lopez@empresa.es",
             "Factura 123 a PEDRO.GARCIA@GMAIL.COM",
-            "Llama 600 123 456 o DNI 87654321X"
+            "Llama 600123456 o DNI 87654321X"
         };
         
         foreach (var test in testCases)
@@ -42,7 +42,7 @@ public static class PiiAnonymizer
         text = Regex.Replace(text, @"[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]", "<DNI>");
         
         // 4. Teléfono español (+34, 600-699, etc.)
-        text = Regex.Replace(text, @"(\+34|0034|34)?[\s\-\(]*[6-9]\d{2}[\s\-\)]*\d{4}[\s\-]*\d{4}", "<PHONE>");
+        text = Regex.Replace(text, @"(\+34|0034|34)?[\s\-\(]*[6-9]\d{2}[\s\-\)]*\d{3}[\s\-]*\d{3}", "<PHONE>");
         
         // 5. Nombres propios (heurística española)
         text = Regex.Replace(text, @"\b[A-ZÁÉÍÑÓÚ][a-záéíñóú]+ [A-ZÁÉÍÑÓÚ][a-záéíñóú]+\b", "<PERSON>");

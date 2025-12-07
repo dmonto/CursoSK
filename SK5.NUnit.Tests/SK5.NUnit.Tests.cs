@@ -3,131 +3,172 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace SK.NUnit.Tests;
-
-[TestFixture]
-public class AzureDevOpsPluginTests
+namespace SK5.NUnit.Tests
 {
-    private Mock<HttpMessageHandler> _handlerMock;
-    private HttpClient _httpClient;
-    private Mock<ILogger<AzureDevOpsPlugin>> _loggerMock;
-    private Kernel _kernel;
-    private AzureDevOpsPlugin _plugin;
-
-    [SetUp]
-    public void Setup()
+    [TestFixture]
+    public class AzureDevOpsPluginTests
     {
-        _handlerMock = new Mock<HttpMessageHandler>();
-        _httpClient = new HttpClient(_handlerMock.Object);
-        _loggerMock = new Mock<ILogger<AzureDevOpsPlugin>>();
+        private Mock<HttpMessageHandler> _handlerMock;
+        private HttpClient _httpClient;
+        private Mock<ILogger<AzureDevOpsPlugin>> _loggerMock;
+        private Kernel _kernel;
+        private AzureDevOpsPlugin _plugin;
 
-        var services = new ServiceCollection();
-        services.AddSingleton(_httpClient);
-        services.AddSingleton(_loggerMock.Object);
-
-        var builder = Kernel.CreateBuilder();
-        builder.Services.AddSingleton(services.BuildServiceProvider());
-        _kernel = builder.Build();
-
-        _plugin = new AzureDevOpsPlugin(_httpClient, _loggerMock.Object);
-        _kernel.Plugins.AddFromObject(_plugin, "AzureDevOps");
-    }
-
-    [Test]
-    public async Task ListProjectsAsync_ShouldReturnProjects_WhenValidPat()
-    {
-        // Arrange
-        var mockResponse = JsonObject.Parse("""
+        [SetUp]
+        public void Setup()
         {
-            "count": 1,
-            "value": [{"id": "proj1", "name": "CursoSK"}]
-        }
-        """);
-        
-        SetupHttpResponse("/_apis/projects?api-version=7.1-preview.4", mockResponse.ToJsonString(), HttpStatusCode.OK);
-
-        // Act
-        var result = await _kernel.InvokeAsync("AzureDevOps", "ListProjectsAsync", new() { ["pat"] = "mock-pat" });
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.That(result.ToString(), Does.Contain("CursoSK"));
-        _handlerMock.Verify(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    private void SetupHttpResponse(string path, string responseContent, HttpStatusCode statusCode)
-    {
-        _handlerMock
-            .Setup(h => h.SendAsync(It.Is<HttpRequestMessage>(req => req.RequestUri!.AbsolutePath.Contains(path)),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HttpResponseMessage(statusCode)
+            _handlerMock = new Mock<HttpMessageHandler>();
+            _httpClient = new HttpClient(_handlerMock.Object)
             {
-                Content = new StringContent(responseContent)
-            });
-    }
+                BaseAddress = new System.Uri("https://dev.azure.com/my-org/")
+            };
+            _loggerMock = new Mock<ILogger<AzureDevOpsPlugin>>();
 
-    [Test]
-    public async Task CreateWorkItemAsync_ShouldCreateIssue_WhenValidParameters()
-    {
-        // Arrange
-        var mockWorkItem = JsonObject.Parse("""
-        {
-            "id": 101,
-            "fields": {"System.Title": "Nuevo Issue"}
+            var builder = Kernel.CreateBuilder();
+            // Inyecta el HttpClient y el Logger en el proveedor de servicios del Kernel
+            builder.Services.AddSingleton(_httpClient);
+            builder.Services.AddSingleton(_loggerMock.Object);
+            _kernel = builder.Build();
+
+            // Pide al Kernel que cree e importe el plugin, resolviendo sus dependencias.
+            // Y verifica que las funciones fueron importadas.
+            var plugin = _kernel.ImportPluginFromType<AzureDevOpsPlugin>("AzureDevOps");
+            Assert.That(plugin.Count, Is.GreaterThan(0), "No se importaron funciones del plugin. ¿Faltan atributos [KernelFunction]?");
         }
-        """);
-        
-        SetupHttpResponse($"/CursoSK/_apis/wit/workitems/Issue?api-version=7.1-preview.3", 
-            mockWorkItem.ToJsonString(), HttpStatusCode.Created);
 
-        // Act
-        var result = await _kernel.InvokeAsync("AzureDevOps", "CreateWorkItemAsync", new()
+        [TearDown]
+        public void TearDown()
         {
-            ["pat"] = "mock-pat",
-            ["projectName"] = "CursoSK",
-            ["type"] = "Issue",
-            ["title"] = "Nuevo Issue",
-            ["description"] = "Test description"
-        });
+            _httpClient?.Dispose();
+        }
 
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.That(result.ToString(), Does.Contain("id"));
-        Assert.That(result.ToString(), Does.Contain("Nuevo Issue"));
-    }
-
-    [Test]
-    public async Task ListProjectsAsync_ShouldThrow_WhenHttpError()
-    {
-        // Arrange
-        SetupHttpResponse("/_apis/projects?api-version=7.1-preview.4", "", HttpStatusCode.Unauthorized);
-
-        // Act & Assert
-        Assert.ThrowsAsync<HttpRequestException>(async () =>
-            await _kernel.InvokeAsync("AzureDevOps", "ListProjectsAsync", new() { ["pat"] = "invalid" }));
-    }
-
-    [Test]
-    public async Task CreateWorkItemAsync_ShouldHandleEmptyDescription()
-    {
-        // Arrange
-        var mockWorkItem = JsonObject.Parse("{\"id\":102,\"fields\":{\"System.Title\":\"Task sin desc\"}}");
-        SetupHttpResponse("/CursoSK/_apis/wit/workitems/Task?api-version=7.1-preview.3", 
-            mockWorkItem.ToJsonString(), HttpStatusCode.Created);
-
-        // Act
-        var result = await _kernel.InvokeAsync("AzureDevOps", "CreateWorkItemAsync", new()
+        [Test]
+        public async Task ListProjectsAsync_ShouldReturnProjects_WhenValidPat()
         {
-            ["pat"] = "mock-pat", ["projectName"] = "CursoSK", ["type"] = "Task", ["title"] = "Task sin desc"
-        });
+            // Arrange
+            var mockResponse = JsonNode.Parse("""
+            {
+                "count": 1,
+                "value": [{"id": "proj1", "name": "CursoSK"}]
+            }
+            """);
 
-        // Assert
-        Assert.IsNotNull(result);
+            SetupHttpResponse("/_apis/projects?api-version=7.1-preview.4", mockResponse!.ToJsonString(), HttpStatusCode.OK);
+
+            // Act
+            var result = await _kernel.InvokeAsync("AzureDevOps", "ListProjects", new() { ["pat"] = "mock-pat" });
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ToString(), Does.Contain("CursoSK"));
+        }
+
+        [Test]
+        public async Task CreateWorkItemAsync_ShouldCreateIssue_WhenValidParameters()
+        {
+            // Arrange
+            var mockWorkItem = JsonNode.Parse("""
+            {
+                "id": 101,
+                "fields": {"System.Title": "Nuevo Issue"}
+            }
+            """);
+
+            SetupHttpResponse($"/CursoSK/_apis/wit/workitems/$Issue?api-version=7.1-preview.3",
+                mockWorkItem!.ToJsonString(), HttpStatusCode.Created);
+
+            // Act
+            var result = await _kernel.InvokeAsync("AzureDevOps", "CreateWorkItem", new()
+            {
+                ["pat"] = "mock-pat",
+                ["projectName"] = "CursoSK",
+                ["type"] = "Issue",
+                ["title"] = "Nuevo Issue",
+                ["description"] = "Test description"
+            });
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ToString(), Does.Contain("101"));
+            Assert.That(result.ToString(), Does.Contain("Nuevo Issue"));
+        }
+
+        [Test]
+        public async Task ListProjectsAsync_ShouldThrow_WhenHttpError()
+        {
+            // Arrange
+            SetupHttpResponse("/_apis/projects?api-version=7.1-preview.4", "", HttpStatusCode.Unauthorized);
+
+            // Act & Assert
+            Assert.ThrowsAsync<HttpRequestException>(async () =>
+                await _kernel.InvokeAsync("AzureDevOps", "ListProjects", new() { ["pat"] = "invalid" }));
+        }
+
+        [Test]
+        public async Task GetWorkItemAsync_ReturnsTitle_WhenApiCallIsSuccessful()
+        {
+            // Arrange
+            var mockResponse = JsonNode.Parse("""
+            {
+                "id": 1,
+                "fields": { "System.Title": "Test Title" }
+            }
+            """);
+
+            SetupHttpResponse("/_apis/wit/workitems/1?api-version=7.1-preview.3", mockResponse!.ToJsonString(), HttpStatusCode.OK);
+
+            // Act
+            var result = await _kernel.InvokeAsync("AzureDevOps", "GetWorkItem", new() { ["pat"] = "mock-pat", ["workItemId"] = "1" });
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ToString(), Is.EqualTo("Test Title"));
+        }
+
+        [Test]
+        public void GetWorkItemAsync_ThrowsException_WhenApiCallFails()
+        {
+            // Arrange
+            var workItemId = 999;
+            SetupHttpResponse($"/_apis/wit/workitems/{workItemId}?api-version=7.1-preview.3", "", HttpStatusCode.NotFound);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<HttpRequestException>(async () =>
+                await _kernel.InvokeAsync("AzureDevOps", "GetWorkItem", new KernelArguments
+                {
+                    { "pat", "a-pat" },
+                    { "workItemId", workItemId },
+                    { "projectName", "CursoSK" }
+                }));
+
+            Assert.That(ex.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        }
+
+        private void SetupHttpResponse(string path, string responseContent, HttpStatusCode statusCode)
+        {
+            _handlerMock
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.RequestUri!.AbsolutePath.EndsWith(path)),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage(statusCode)
+                {
+                    Content = new StringContent(responseContent,
+                        Encoding.UTF8,
+                        "application/json")
+                });
+        }
     }
 }
