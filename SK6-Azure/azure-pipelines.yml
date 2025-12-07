@@ -48,7 +48,7 @@ stages:
           - task: AzureCLI@2
             displayName: 'Deploy Container App'
             inputs:
-              azureSubscription: 'Azure Service Connection'
+              azureSubscription: 'sk-prod-rg'
               scriptType: 'bash'
               inlineScript: |
                 az containerapp up \
