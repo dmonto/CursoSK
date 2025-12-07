@@ -28,7 +28,7 @@ stages:
         command: 'buildAndPush'
         repository: '$(imageRepository)'
         dockerfile: '$(dockerfilePath)'
-        containerRegistry: 'sk-prod-rg'
+        containerRegistry: 'skagents-acr'
         tags: |
           $(tag)
           latest
