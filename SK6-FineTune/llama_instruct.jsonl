@@ -1,0 +1,1 @@
+{"messages": [{"content": "You are a chatbot that helps with scientific literature and generates state-of-the-art abstracts from articles.","role": "system"},{"content": "Summarize the paper in one paragraph.","role": "user"},{"content": " Here is a one paragraph summary of the paper:\n\nThe paper describes PaLM, ...","role": "assistant"}]}

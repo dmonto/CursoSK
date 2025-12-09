@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("SK4-RabbitCons")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("SK6-FineTune")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b19b66039d8756fe30998346d73e08c108a6d2e0")]
-[assembly: System.Reflection.AssemblyProductAttribute("SK4-RabbitCons")]
-[assembly: System.Reflection.AssemblyTitleAttribute("SK4-RabbitCons")]
+[assembly: System.Reflection.AssemblyProductAttribute("SK6-FineTune")]
+[assembly: System.Reflection.AssemblyTitleAttribute("SK6-FineTune")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.

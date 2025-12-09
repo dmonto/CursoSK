@@ -1,0 +1,8 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+command: python fine_tune.py
+environment: azureml:AzureML-openai-4.2-ubuntu20.04-py38-cuda11-gfn4@latest
+compute: cpu-cluster
+inputs:
+  training_data: azureml:sk_finetune_data_123456
+  model_size: "4o-mini"
+  epochs: 3

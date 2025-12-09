@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SK6-Serilog")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d5218835fa49540bfef57b37df42302f2b55954")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b19b66039d8756fe30998346d73e08c108a6d2e0")]
 [assembly: System.Reflection.AssemblyProductAttribute("SK6-Serilog")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SK6-Serilog")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

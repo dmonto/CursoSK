@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SK6-Azure", "SK6-Azure\SK6-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SK6-Serilog", "SK6-Serilog\SK6-Serilog.csproj", "{E67B2278-0FA4-4BA4-A50E-3145C8CCD230}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SK6-FineTune", "SK6-FineTune\SK6-FineTune.csproj", "{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,18 @@ Global
 		{E67B2278-0FA4-4BA4-A50E-3145C8CCD230}.Release|x64.Build.0 = Release|Any CPU
 		{E67B2278-0FA4-4BA4-A50E-3145C8CCD230}.Release|x86.ActiveCfg = Release|Any CPU
 		{E67B2278-0FA4-4BA4-A50E-3145C8CCD230}.Release|x86.Build.0 = Release|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Debug|x64.Build.0 = Debug|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Debug|x86.Build.0 = Debug|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Release|x64.ActiveCfg = Release|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Release|x64.Build.0 = Release|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Release|x86.ActiveCfg = Release|Any CPU
+		{0ADAE531-BD4A-41E0-A97E-445D4D6A9EFC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,2 @@
+{"messages": [{"role": "system", "content": "Eres experto Semantic Kernel"}, {"role": "user", "content": "Qué es SK?"}, {"role": "assistant", "content": "Semantic Kernel es framework .NET para orquestar LLMs..."}]}
+{"messages": [{"role": "system", "content": "Eres experto Semantic Kernel"}, {"role": "user", "content": "¿Cómo uso plugins?"}, {"role": "assistant", "content": "Plugins en SK se crean con IFunction..."}]}

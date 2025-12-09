@@ -1,0 +1,19 @@
+jobSpec:
+  workerPoolSpecs:
+  - machineSpec:
+      machineType: "n1-standard-8"
+      acceleratorType: "TPU_V5P"
+      acceleratorCount: 1
+    replicaCount: 1
+    containerSpec:
+      imageUri: "us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-14:latest"
+      args:
+      - "--model_id=google/gemma-2-9b-it"
+      - "--dataset=gs://polar-scarab-145015.appspot.com/gemma_lora_train.jsonl"
+      - "--lora_r=32"
+      - "--lora_alpha=64"
+      - "--epochs=2"
+      - "--batch_size=8"
+      - "--learning_rate=2e-4"
+      - "--output_dir=/output"
+

@@ -17,8 +17,6 @@ AppContext.SetSwitch("System.Text.Json.Serialization.EnableReflectionDefault", t
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar el serializador JSON para que funcione con AOT.
-// Esto le dice a la app qué tipos de datos necesitará convertir a JSON.
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
@@ -39,13 +37,10 @@ var app = builder.Build();
 
 // --- LÓGICA DEL CHATBOT ---
 
-// Historial de chat que se mantendrá en memoria mientras la app se ejecuta.
 var chatHistory = new ChatHistory("Eres un asistente de IA amigable y servicial, experto en cualquier tema que se te pregunte.");
 
-// Función para serializar el historial a un formato de texto plano.
 string SerializarChatHistory() => string.Join("\n", chatHistory.Select(m => $"{m.Role}: {m.Content}"));
 
-// Prompt que instruye al modelo sobre cómo continuar la conversación.
 var promptFuncionChat =
     @"A continuación se muestra un historial de conversación. Continúa la conversación respondiendo al último mensaje del usuario.
     --- Historial de Conversación ---
@@ -84,7 +79,7 @@ app.MapGet("/chat", async (Kernel kernel, string message) =>
     // 5. Añadir la respuesta del asistente al historial para la próxima vez.
     chatHistory.AddAssistantMessage(respuestaBot);
 
-    // 6. Devolver solo la última respuesta usando un DTO FUERTE (sin tipos anónimos)
+    // 6. Devolver solo la última respuesta 
     return Results.Ok(new ChatResponse(respuestaBot));
 });
 
@@ -107,7 +102,6 @@ app.Run("http://0.0.0.0:8080");
 public record ChatResponse(string Response);
 public record ResetResponse(string Message);
 
-// Esta clase le dice al compilador para qué tipos debe generar código de serialización AOT.
 [JsonSerializable(typeof(ChatResponse))]
 [JsonSerializable(typeof(ResetResponse))]
 [JsonSerializable(typeof(ProblemDetails))] // Para respuestas de error estándar (ej. BadRequest)
