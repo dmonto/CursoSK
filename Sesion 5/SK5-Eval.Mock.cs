@@ -92,7 +92,7 @@ public class AgentEvaluationTests
     {
         if (!File.Exists("dataset.json"))
         {
-            var dummyDataset = new[] { new EvaluationDataset("¿Cuál es el estado del build?", "El build está fallando.") };
+            var dummyDataset = new[] { new EvaluationDataset("¿Cuál es el estado del build?", "Dame el nombre del Build.") };
             File.WriteAllText("dataset.json", JsonSerializer.Serialize(dummyDataset));
         }
 
