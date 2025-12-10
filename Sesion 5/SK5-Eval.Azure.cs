@@ -13,6 +13,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Numerics.Tensors;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json.Nodes;
 
 #pragma warning disable SKEXP0070 // Deshabilitar advertencia para conectores experimentales de Google
 #pragma warning disable SKEXP0001 // Deshabilitar advertencia para GetEmbeddingAsync
@@ -57,12 +60,8 @@ public class EvaluationPlugin
     }
 }
 
-// Definición de los records para que el código compile
 public record EvaluationResult(double Accuracy, bool Passed, string Input, string Expected, string Actual);
 public record EvaluationDataset(string Input, string Expected);
-
-// Placeholder para el plugin que no está definido en el contexto
-public class AzureDevOpsPlugin { }
 
 public class AgentEvaluationTests
 {
@@ -85,8 +84,10 @@ public class AgentEvaluationTests
 #pragma warning restore SKEXP0070
         _kernel = builder.Build();
             
-
-        _kernel.ImportPluginFromObject(new AzureDevOpsPlugin(), "AzureDevOps");
+        HttpClient _httpClient = new HttpClient();
+        _httpClient.BaseAddress = new Uri($"https://dev.azure.com/");
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _kernel.ImportPluginFromObject(new AzureDevOpsPlugin(_httpClient, Mock.Of<ILogger<AzureDevOpsPlugin>>()), "AzureDevOps");
         _kernel.ImportPluginFromObject(new EvaluationPlugin(_kernel, Mock.Of<ILogger<EvaluationPlugin>>()), "Eval");
         _evaluator = new EvaluationPlugin(_kernel, Mock.Of<ILogger<EvaluationPlugin>>());
     }
@@ -94,10 +95,10 @@ public class AgentEvaluationTests
     [Fact]
     public async Task EvaluateAgent_100Cases_ShouldAchieveF1_85()
     {
-        // Asegúrate de que el archivo dataset.json exista en la ruta correcta
+        var pat = Environment.GetEnvironmentVariable("AZURE_DEVOPS_PAT");
+        var organization = Environment.GetEnvironmentVariable("AZURE_DEVOPS_ORG");
         if (!File.Exists("dataset.json"))
         {
-            // Crear un archivo dummy para que la prueba no falle por archivo no encontrado
             var dummyDataset = new[] { new EvaluationDataset("¿Cuál es el estado del build?", "El build está fallando.") };
             File.WriteAllText("dataset.json", JsonSerializer.Serialize(dummyDataset));
         }
@@ -109,11 +110,12 @@ public class AgentEvaluationTests
         foreach (var testCase in dataset!)
         {
             // Agent responde
-            var agentResponse = await _kernel.InvokePromptAsync(testCase.Input);
+            var agentResponse = await _kernel.InvokeAsync("AzureDevOps", "ListProjects", new() { ["organization"] = organization, ["pat"] = pat });
             var actual = agentResponse.ToString();
 
             // Evaluar
             var eval = await _evaluator.EvaluateAsync(testCase.Input, testCase.Expected, actual);
+            Console.WriteLine($"{testCase.Input} ({eval:F2})=> {actual} vs. {testCase.Expected}");
             results.Add(eval);
         }
 
@@ -174,17 +176,6 @@ public static class EvaluadorSimilaridadCoseno
 
         return similitud;
     }
-/*
-    private static Kernel CrearKernel(string apiKey)
-    {
-        var builder = _kernel.CreateBuilder();
-        var modelId = "text-embedding-004"; // Modelo de embedding recomendado
-
-        // 4. Usar el nombre de método actualizado y llamarlo sobre 'builder'
-        builder.AddGoogleAIEmbeddingGenerator(modelId, apiKey);
-
-        return builder.Build();
-    }*/
 }
 
 public class Program

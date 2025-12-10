@@ -32,30 +32,33 @@ public class AzureDevOpsPlugin
 
     [KernelFunction("ListProjects"), Description("Lista todos los proyectos en la organización de Azure DevOps")]
     public async Task<string> ListProjectsAsync(
+        [Description("Nombre de la organización de Azure DevOps")] string organization,
         [Description("Personal Access Token de Azure DevOps")] string pat)
     {
-        _logger.LogInformation("Listando proyectos...");
+        _logger.LogInformation("Listando proyectos para la organización {Organization}...", organization);
         SetBasicAuthentication(pat);
-        var response = await _httpClient.GetAsync("_apis/projects?api-version=7.1-preview.4");
+        var response = await _httpClient.GetAsync($"{organization}/_apis/projects?api-version=7.1-preview.4");
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
 
     [KernelFunction("GetRepoInfo"), Description("Obtiene información sobre un repositorio específico en un proyecto")]
     public async Task<string> GetRepoInfoAsync(
+        [Description("Nombre de la organización")] string organization,
         [Description("Personal Access Token")] string pat,
         [Description("Nombre del proyecto")] string projectName,
         [Description("Nombre del repositorio")] string repoName)
     {
         _logger.LogInformation("Obteniendo información del repositorio {RepoName} en el proyecto {ProjectName}...", repoName, projectName);
         SetBasicAuthentication(pat);
-        var response = await _httpClient.GetAsync($"{projectName}/_apis/git/repositories/{repoName}?api-version=7.1-preview.1");
+        var response = await _httpClient.GetAsync($"{organization}/{projectName}/_apis/git/repositories/{repoName}?api-version=7.1-preview.1");
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
 
     [KernelFunction("CreateWorkItem"), Description("Crea un nuevo work item (ej. 'Issue', 'Task') en un proyecto.")]
     public async Task<string> CreateWorkItemAsync(
+        [Description("Nombre de la organización")] string organization,
         [Description("Personal Access Token")] string pat,
         [Description("Nombre del proyecto")] string projectName,
         [Description("Tipo de work item (ej. 'Issue', 'Task')")] string type,
@@ -74,7 +77,7 @@ public class AzureDevOpsPlugin
         var json = patchDoc.ToJsonString();
         var content = new StringContent(json, Encoding.UTF8, "application/json-patch+json");
 
-        var response = await _httpClient.PostAsync($"{projectName}/_apis/wit/workitems/{type}?api-version=7.1-preview.3", content);
+        var response = await _httpClient.PostAsync($"{organization}/{projectName}/_apis/wit/workitems/{type}?api-version=7.1-preview.3", content);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
@@ -82,6 +85,7 @@ public class AzureDevOpsPlugin
     [KernelFunction("GetWorkItem")]
     [Description("Obtiene los detalles de un work item por su ID y devuelve su título.")]
     public async Task<string> GetWorkItemAsync(
+        [Description("Nombre de la organización")] string organization,
         [Description("Personal Access Token")] string pat,
         [Description("Nombre del proyecto")] string projectName,
         [Description("ID del work item a obtener")] int workItemId)
@@ -90,7 +94,7 @@ public class AzureDevOpsPlugin
         SetBasicAuthentication(pat);
 
         // Llama a la API de Azure DevOps para obtener el work item
-        var response = await _httpClient.GetAsync($"{projectName}/_apis/wit/workitems/{workItemId}?api-version=7.1-preview.3");
+        var response = await _httpClient.GetAsync($"{organization}/{projectName}/_apis/wit/workitems/{workItemId}?api-version=7.1-preview.3");
         response.EnsureSuccessStatusCode();
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -122,7 +126,7 @@ class Program
         // HttpClient con configuración para Azure DevOps
         builder.Services.AddHttpClient<AzureDevOpsPlugin>("AzureDevOps", client =>
         {
-            client.BaseAddress = new Uri($"https://dev.azure.com/{organization}/");
+            client.BaseAddress = new Uri($"https://dev.azure.com/");
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
         });
@@ -139,7 +143,11 @@ class Program
 
         // 1. Listar proyectos
         Console.WriteLine("\n--- Proyectos en la organización ---");
-        var projects = await kernel.InvokeAsync("AzureDevOps", "ListProjects", new() { ["pat"] = pat });
+        var projects = await kernel.InvokeAsync("AzureDevOps", "ListProjects", new() 
+        { 
+            ["organization"] = organization,
+            ["pat"] = pat 
+        });
         Console.WriteLine(projects);
 
         string projectName = "CursoSK"; 
@@ -150,6 +158,7 @@ class Program
         {
             var repoInfoAzure = await kernel.InvokeAsync("AzureDevOps", "GetRepoInfo", new()
             {
+                ["organization"] = organization,
                 ["pat"] = pat,
                 ["projectName"] = projectName,
                 ["repoName"] = repoName

@@ -89,7 +89,7 @@ app.MapGet("/chat", async (Kernel kernel, string message, ILogger<Program> logge
 
         logger.LogInformation("Respuesta generada exitosamente. Longitud: {Length}", respuestaBot.Length);
 
-        return Results.Ok(new ChatResponse(respuestaBot));
+        return Results.Ok(respuestaBot);
     }
     catch (HttpRequestException ex)
     {
@@ -121,7 +121,7 @@ public class VertexChatPlugin
    private const string PROJECT_ID="447911303953";
 
    private const string VertexEndpoint =
-        "https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/endpoints/{ENDPOINT_ID}:predict";
+        $"https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/endpoints/{ENDPOINT_ID}:predict";
 
     private const string VertexScope = "https://www.googleapis.com/auth/cloud-platform";
 
@@ -175,25 +175,50 @@ Respuesta del asistente:";
         response.EnsureSuccessStatusCode();
 
         // Parse de respuesta de Vertex
-        var json = await response.Content.ReadAsStringAsync();
-
-        using var doc = JsonDocument.Parse(json);
-        var root = doc.RootElement;
+        var responseBody = await response.Content.ReadAsStringAsync();
+        using var jsonDoc = JsonDocument.Parse(responseBody);
+        var root = jsonDoc.RootElement;
 
         if (!root.TryGetProperty("predictions", out var predictions) || predictions.GetArrayLength() == 0)
         {
-            throw new InvalidOperationException("La respuesta de Vertex no contiene 'predictions'. Respuesta: " + json);
+            throw new InvalidOperationException("La respuesta de Vertex no contiene 'predictions' válidas. Respuesta: " + responseBody);
         }
 
-        var prediction = predictions[0];
+        var predictionElement = predictions[0];
+        string? text = null;
 
-        // Intenta distintas claves (ajusta según tu modelo)
-        string? text =
-            prediction.TryGetProperty("content", out var contentProp) ? contentProp.GetString() :
-            prediction.TryGetProperty("output_text", out var outTextProp) ? outTextProp.GetString() :
-            prediction.ToString(); // último recurso
+        // La respuesta de los modelos de texto de Vertex puede ser un objeto con la propiedad 'content'
+        // o directamente una cadena de texto. Este código maneja ambos casos.
+        if (predictionElement.ValueKind == JsonValueKind.Object && predictionElement.TryGetProperty("content", out var contentProp))
+        {
+            text = contentProp.GetString();
+        }
+        else if (predictionElement.ValueKind == JsonValueKind.String)
+        {
+            text = predictionElement.GetString();
+        }
 
-        return text ?? string.Empty;
+        if (text == null)
+        {
+            throw new InvalidOperationException("No se pudo extraer el texto de la predicción. Respuesta: " + responseBody);
+        }
+
+        // A veces, el modelo fine-tuned puede devolver el prompt completo.
+        // Buscamos el marcador 'Respuesta del asistente:' para limpiar la salida.
+        const string separador = "Respuesta del asistente:";
+        var indiceSeparador = text.LastIndexOf(separador, StringComparison.Ordinal);
+        if (indiceSeparador != -1)
+        {
+            text = text.Substring(indiceSeparador + separador.Length).Trim();
+        }
+
+        // Limpiar el prefijo "Output:" que a veces añade el modelo.
+        if (text.StartsWith("Output:", StringComparison.OrdinalIgnoreCase))
+        {
+            text = text.Substring("Output:".Length).Trim();
+        }
+
+        return text;
     }
 }
 
