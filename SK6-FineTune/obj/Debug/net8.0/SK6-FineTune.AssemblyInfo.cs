@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SK6-FineTune")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ab8626f384328990b60cae4888c485ad83edadf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9213d3d7d7452bc3881c4c331098a2e90aa0197a")]
 [assembly: System.Reflection.AssemblyProductAttribute("SK6-FineTune")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SK6-FineTune")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
