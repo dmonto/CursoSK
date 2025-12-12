@@ -5,7 +5,6 @@ using ModelContextProtocol.Client;
 using GeminiDotnet;
 using GeminiDotnet.Extensions.AI;
 using System.Text.Json;
-using Microsoft.SemanticKernel.ChatCompletion;
 
 // 1. Crear el backend de chat (Gemini via IChatClient)
 var geminiOptions = new GeminiClientOptions
@@ -95,9 +94,6 @@ Console.WriteLine("\n" + new string('=', 70));
 Console.WriteLine("CONSOLA INTERACTIVA - AGENTE MAF + GIT MCP + AZURE MCP ");
 Console.WriteLine(new string('=', 70));
 
-// --- CAMBIO: INICIALIZAR EL HISTORIAL DE CHAT ---
-var chatHistory = new ChatHistory();
-
 while (true)
 {
     Console.WriteLine("\n[USER] Introduce tu consulta (o 'salir' para terminar):");
@@ -119,24 +115,9 @@ while (true)
     try
     {
         Console.WriteLine($"\n[AGENT] Procesando consulta...");
-
-        // --- CAMBIO: USAR HISTORIAL Y AGREGAR MENSAJE DEL USUARIO ---
-        chatHistory.AddUserMessage(userQuery);
-
-        string agentResponse = string.Empty;
-
-        // --- CAMBIO: INVOCAR AL AGENTE CON EL HISTORIAL COMPLETO ---
-        // El agente añadirá su respuesta al historial automáticamente.
-        await foreach (var message in agent.InvokeAsync(chatHistory))
-        {
-            if (message.Content is not null)
-            {
-                agentResponse += message.Content;
-            }
-        }
-
+        var result = await agent.RunAsync(userQuery);
         Console.WriteLine($"\n[AGENT] Respuesta:");
-        Console.WriteLine(agentResponse);
+        Console.WriteLine(result);
     }
     catch (Exception ex)
     {
