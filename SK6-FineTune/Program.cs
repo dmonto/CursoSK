@@ -160,7 +160,7 @@ Respuesta del asistente:";
 
         var httpClient = _httpClientFactory.CreateClient();
 
-        var credential = await GoogleCredential.GetApplicationDefaultAsync();
+        var credential = GoogleCredential.FromFile("service-account-key.json");
         credential = credential.CreateScoped(VertexScope);
         var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
 

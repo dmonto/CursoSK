@@ -5,6 +5,7 @@ using ModelContextProtocol.Client;
 using GeminiDotnet;
 using GeminiDotnet.Extensions.AI;
 using System.Text.Json;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 // 1. Crear el backend de chat (Gemini via IChatClient)
 var geminiOptions = new GeminiClientOptions
@@ -41,8 +42,8 @@ IList<McpClientTool> azureTools = new List<McpClientTool>();
 try
 {
     // El contenedor debe estar levantado con -p 5050:5050
-    var endpoint = "http://localhost:5050/mcp";
-    azureMafClient = new MafMcpClient("ado", endpoint);
+    var azure_org = Environment.GetEnvironmentVariable("AZURE_DEVOPS_ORG");
+    azureMafClient = new MafMcpClient("ado", azure_org);
 
     azureTools = await azureMafClient.ListToolsAsync();
     Console.WriteLine($"[AZURE] Tools disponibles: {azureTools.Count}");
@@ -52,7 +53,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"[ERROR] No se pudo conectar al servidor MCP de Azure DevOps: {ex.Message}");
-}salir
+}
 
 // 4. Mapear tools del MCP LOCAL -> AIFunctions de MAF
 var aiTools = new List<AITool>();
@@ -94,6 +95,9 @@ Console.WriteLine("\n" + new string('=', 70));
 Console.WriteLine("CONSOLA INTERACTIVA - AGENTE MAF + GIT MCP + AZURE MCP ");
 Console.WriteLine(new string('=', 70));
 
+// --- CAMBIO: INICIALIZAR EL HISTORIAL DE CHAT ---
+var chatHistory = new ChatHistory();
+
 while (true)
 {
     Console.WriteLine("\n[USER] Introduce tu consulta (o 'salir' para terminar):");
@@ -115,9 +119,24 @@ while (true)
     try
     {
         Console.WriteLine($"\n[AGENT] Procesando consulta...");
-        var result = await agent.RunAsync(userQuery);
+
+        // --- CAMBIO: USAR HISTORIAL Y AGREGAR MENSAJE DEL USUARIO ---
+        chatHistory.AddUserMessage(userQuery);
+
+        string agentResponse = string.Empty;
+
+        // --- CAMBIO: INVOCAR AL AGENTE CON EL HISTORIAL COMPLETO ---
+        // El agente añadirá su respuesta al historial automáticamente.
+        await foreach (var message in agent.InvokeAsync(chatHistory))
+        {
+            if (message.Content is not null)
+            {
+                agentResponse += message.Content;
+            }
+        }
+
         Console.WriteLine($"\n[AGENT] Respuesta:");
-        Console.WriteLine(result);
+        Console.WriteLine(agentResponse);
     }
     catch (Exception ex)
     {

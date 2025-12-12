@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SK5.xUnit.Math")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e99e45ebce099cd25080724c329f536882034c45")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a86b15da2ef5d3357d1d1d1ffc5485ddc0fbf0f")]
 [assembly: System.Reflection.AssemblyProductAttribute("SK5.xUnit.Math")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SK5.xUnit.Math")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: sk-app
-        image: polaracr.azurecr.io/sk-gemini-prod:latest    
+        image: gcr.io/polar-scarab-145015/sk-agent:latest 
         ports:
         - containerPort: 8080
         resources:
@@ -31,4 +31,4 @@ spec:
           valueFrom:
             secretKeyRef:
               name: gemini-secret
-              key: AIzaSyC-mRAPlapUzNdozEwFCe8a9GUaBmOzMDY
+              key: ***
