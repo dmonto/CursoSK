@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("McpClientMAFMulti")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a86b15da2ef5d3357d1d1d1ffc5485ddc0fbf0f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07372f6248419d852a03c7cb78ce1917e9d0178c")]
 [assembly: System.Reflection.AssemblyProductAttribute("McpClientMAFMulti")]
 [assembly: System.Reflection.AssemblyTitleAttribute("McpClientMAFMulti")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

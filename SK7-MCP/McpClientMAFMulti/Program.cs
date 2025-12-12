@@ -89,6 +89,8 @@ var agent = chatClient.CreateAIAgent(
     name: "MafWithGitAndAzureMcpAgent",
     tools: aiTools);
 
+var thread = agent.GetNewThread();
+
 // 6. Consola interactiva que invoca al agente
 Console.WriteLine("\n" + new string('=', 70));
 Console.WriteLine("CONSOLA INTERACTIVA - AGENTE MAF + GIT MCP + AZURE MCP ");
@@ -115,7 +117,7 @@ while (true)
     try
     {
         Console.WriteLine($"\n[AGENT] Procesando consulta...");
-        var result = await agent.RunAsync(userQuery);
+        var result = await agent.RunAsync(userQuery, thread);
         Console.WriteLine($"\n[AGENT] Respuesta:");
         Console.WriteLine(result);
     }

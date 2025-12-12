@@ -10,13 +10,13 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("MafGeminiMcpServer")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("MafGeminiMcpServerWeb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyDescriptionAttribute("An MCP server using the MCP C# SDK.")]
+[assembly: System.Reflection.AssemblyDescriptionAttribute("An MCP server using the MCP C# SDK, exposed over HTTP.")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07372f6248419d852a03c7cb78ce1917e9d0178c")]
-[assembly: System.Reflection.AssemblyProductAttribute("MafGeminiMcpServer")]
-[assembly: System.Reflection.AssemblyTitleAttribute("MafGeminiMcpServer")]
+[assembly: System.Reflection.AssemblyProductAttribute("MafGeminiMcpServerWeb")]
+[assembly: System.Reflection.AssemblyTitleAttribute("MafGeminiMcpServerWeb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.
