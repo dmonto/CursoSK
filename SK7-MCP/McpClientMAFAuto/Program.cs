@@ -37,13 +37,13 @@ foreach (var t in aiTools)
 
 // 4. Crear agente MAF con esas tools
 var agent = chatClient.CreateAIAgent(
-    instructions: "Eres un agente MAF que DEBE usar las herramientas MCP (maf_query, generate_random_number, etc.) " +
+    instructions: "Eres un agente que DEBE usar las herramientas MCP (maf_query, generate_random_number, etc.) " +
                   "siempre que la pregunta requiera datos externos o funcionalidad expuesta como tool.",
     name: "MafWithMcpAgent",
     tools: aiTools);
 
 // 5. Usar el agente (tool calling automático sobre MCP)
-var prompt = "Genera un número aleatorio entre 10 y 100 usando tus herramientas MCP.";
+var prompt = "Saluda al Agente MAF y dile que me llamo Diego.";
 Console.WriteLine($"[USER] {prompt}");
 
 var result = await agent.RunAsync(prompt);

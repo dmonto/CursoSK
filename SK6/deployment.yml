@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
       - name: sk-app
-        image: sk-multiagent:latest     # ← sin push a la nube
-        imagePullPolicy: IfNotPresent
+        image: polaracr.azurecr.io/sk-gemini-prod:latest    
         ports:
         - containerPort: 8080
         resources:
@@ -28,8 +27,8 @@ spec:
         env:
         - name: ASPNETCORE_URLS
           value: "http://+:8080"
-        - name: GEMINI_API_KEY          # ← Reference to secret
+        - name: GEMINI_API_KEY         
           valueFrom:
             secretKeyRef:
               name: gemini-secret
-              key: GEMINI_API_KEY
+              key: AIzaSyC-mRAPlapUzNdozEwFCe8a9GUaBmOzMDY

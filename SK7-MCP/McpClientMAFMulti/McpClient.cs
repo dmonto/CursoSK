@@ -1,29 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
-using ModelContextProtocol.Protocol;
-
-public class LocalMafMcpClient : MafMcpClient
-{
-    public LocalMafMcpClient() : base("stdio", null) { }
-}
-
-public class PipedreamMafMcpClient : MafMcpClient
-{
-    public PipedreamMafMcpClient() : base("http", "https://mcp.pipedream.net/v2") { }
-}
+using GeminiDotnet;
+using GeminiDotnet.Extensions.AI;
+using System.Text.Json;
 
 public class MafMcpClient
 {
     private readonly McpClient _client;
 
-    public MafMcpClient(string transportKind, string? url)
+    public MafMcpClient(string transportKind, string? extra)
     {
+        var options = new McpClientOptions
+        {
+            ProtocolVersion = "2024-11-05"
+        };
+
+        IClientTransport transport;
+
         if (transportKind == "stdio")
         {
-            var transport = new StdioClientTransport(new StdioClientTransportOptions
+            transport = new StdioClientTransport(new StdioClientTransportOptions
             {
                 Name = "MafClient",
                 Command = "dotnet",
@@ -34,23 +31,69 @@ public class MafMcpClient
                     @"C:\Users\diego\OneDrive\Documentos\CursoSK\SemanticKernelGeminiSample\SK7-MCP\MafGeminiMcpServer\MafGeminiMcpServer.csproj"
                 ],
             });
-
-            var options = new McpClientOptions();
-            _client = McpClient.CreateAsync(transport, options).GetAwaiter().GetResult();
         }
         else if (transportKind == "http")
         {
-            var transport = new HttpClientTransport(new HttpClientTransportOptions
-            {
-                Endpoint = new Uri("https://mcp.pipedream.net/v2")
-            });
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/json, text/event-stream");
 
-            _client = McpClient.CreateAsync(transport).GetAwaiter().GetResult();
+            transport = new HttpClientTransport(
+                new HttpClientTransportOptions
+                {
+                    Endpoint = new Uri(extra ?? "https://api.pipedream.com/v1")
+                },
+                httpClient);
+        }
+        else if (transportKind == "docker")
+        {
+            var githubToken = Environment.GetEnvironmentVariable("GITHUB_PERSONAL_ACCESS_TOKEN")
+                              ?? throw new InvalidOperationException("La variable de entorno GITHUB_PERSONAL_ACCESS_TOKEN no está configurada.");
+
+            transport = new StdioClientTransport(new StdioClientTransportOptions
+            {
+                Name = "GitHubMcpClient",
+                Command = "docker",
+                Arguments =
+                [
+                    "run",
+                    "-i",
+                    "--rm",
+                    "-e",
+                    "GITHUB_PERSONAL_ACCESS_TOKEN",
+                    "mcp/github"
+                ],
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["GITHUB_PERSONAL_ACCESS_TOKEN"] = githubToken
+                }
+            });
+        }
+        else if (transportKind == "ado")
+        {
+            if (string.IsNullOrWhiteSpace(extra))
+                throw new ArgumentException("Organization must be provided for Azure DevOps MCP.", nameof(extra));
+
+            // Equivalente a:
+            // "type": "stdio", "command": "npx", "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
+            transport = new StdioClientTransport(new StdioClientTransportOptions
+            {
+                Name = "AzureDevOpsMcpClient",
+                Command = "npx",
+                Arguments =
+                [
+                    "-y",
+                    "@azure-devops/mcp",   // o "@azure-devops/mcp@next" según doc
+                    extra                  // aquí pasas el nombre de la organización (ado_org)
+                ],
+            });
         }
         else
         {
             throw new ArgumentOutOfRangeException(nameof(transportKind));
         }
+
+        Console.WriteLine($"[MCP-{transportKind.ToUpper()}] Inicializando cliente MCP...");
+        _client = McpClient.CreateAsync(transport, options).GetAwaiter().GetResult();
     }
 
     public async Task<IList<McpClientTool>> ListToolsAsync(CancellationToken ct = default)
@@ -70,7 +113,6 @@ public class MafMcpClient
             },
             cancellationToken: ct);
 
-        // Muestra el primer bloque como JSON para ver estructura real
         var first = result.Content.FirstOrDefault();
         return first?.ToString() ?? string.Empty;
     }

@@ -1,8 +1,10 @@
-﻿using Microsoft.Agents.AI;
+
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using GeminiDotnet;
 using GeminiDotnet.Extensions.AI;
+using System.Text.Json;
 
 // 1. Crear el backend de chat (Gemini via IChatClient)
 var geminiOptions = new GeminiClientOptions
@@ -14,55 +16,145 @@ var geminiOptions = new GeminiClientOptions
 
 IChatClient chatClient = new GeminiChatClient(geminiOptions);
 
-// 2. Crear clientes MCP y descubrir tools
-
 // MCP local por stdio
+Console.WriteLine("[MCP-LOCAL] Inicializando MCP maf-gemini...\n");
 var localMcp = new MafMcpClient("stdio", null);
 var localTools = await localMcp.ListToolsAsync();
-Console.WriteLine($"[MCP-LOCAL] Tools: {localTools.Count}");
+
+var GitHubMcp = new MafMcpClient("docker", null);
+var GitHubTools  = await GitHubMcp.ListToolsAsync();
+
+Console.WriteLine($"[MCP-LOCAL] Tools disponibles: {localTools.Count}");
 foreach (var t in localTools)
-    Console.WriteLine($"[MCP-LOCAL] - {t.Name}: {t.Description}");
+    Console.WriteLine($"[MCP-LOCAL]   - {t.Name}: {t.Description}");
 
-// MCP Pipedream por HTTP
-var pipedreamMcp = new MafMcpClient("http", "https://mcp.pipedream.net/v2");
-var pipedreamTools = await pipedreamMcp.ListToolsAsync();
-Console.WriteLine($"[MCP-PIPEDREAM] Tools: {pipedreamTools.Count}");
-foreach (var t in pipedreamTools)
-    Console.WriteLine($"[MCP-PIPEDREAM] - {t.Name}: {t.Description}");
+Console.WriteLine($"[GITHUB] Tools disponibles: {GitHubTools.Count}");
+foreach (var t in GitHubTools)
+    Console.WriteLine($"[GITHUB]   - {t.Name}: {t.Description}");
 
-// 3. Mapear tools de ambos MCP -> AIFunctions de MAF
+// INICIALIZAR CLIENTE AZURE DEVOPS MCP VIA DOCKER (HTTP)
+Console.WriteLine($"\n[AZURE] Inicializando cliente Azure DevOps MCP via Docker/HTTP...");
+
+MafMcpClient? azureMafClient = null;
+IList<McpClientTool> azureTools = new List<McpClientTool>();
+
+try
+{
+    // El contenedor debe estar levantado con -p 5050:5050
+    var endpoint = "http://localhost:5050/mcp";
+    azureMafClient = new MafMcpClient("ado", endpoint);
+
+    azureTools = await azureMafClient.ListToolsAsync();
+    Console.WriteLine($"[AZURE] Tools disponibles: {azureTools.Count}");
+    foreach (var t in azureTools)
+        Console.WriteLine($"[AZURE]   - {t.Name}: {t.Description}");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[ERROR] No se pudo conectar al servidor MCP de Azure DevOps: {ex.Message}");
+}salir
+
+// 4. Mapear tools del MCP LOCAL -> AIFunctions de MAF
 var aiTools = new List<AITool>();
 
+// MCP local
 aiTools.AddRange(
     localTools.Select(t => McpToolMapper.ToAiFunction(t, localMcp, "local")));
 
+// GitHub
 aiTools.AddRange(
-    pipedreamTools.Select(t => McpToolMapper.ToAiFunction(t, pipedreamMcp, "pipedream")));
+    GitHubTools.Select(t => McpToolMapper.ToAiFunction(t, GitHubMcp, "github")));
 
-Console.WriteLine($"[MAF] AIFunctions registradas en el agente: {aiTools.Count}");
+// Azure DevOps (prefijo azure_)
+if (azureMafClient != null)
+{
+    aiTools.AddRange(
+        azureTools.Select(t => McpToolMapper.ToAiFunction(t, azureMafClient, "azure")));
+}
+
+Console.WriteLine($"\n[MAF] AIFunctions registradas en el agente: {aiTools.Count}");
 foreach (var t in aiTools)
-    Console.WriteLine($"[MAF] - {t.Name}");
+    Console.WriteLine($"[MAF]   - {t.Name}");
 
-// 4. Crear agente MAF con esas tools
+// 5. Crear agente MAF con esas tools
 var agent = chatClient.CreateAIAgent(
     instructions: """
-        Eres un agente MAF que usa:
-        - Tools 'local_*' del MCP local para lógica interna.
-        - Tools 'pipedream_*' del MCP Pipedream para acceder a Google Drive
-          y otros servicios externos (listar, buscar archivos, etc.).
-        Usa SIEMPRE las tools 'pipedream_*' cuando el usuario pida algo de Drive.
+        Eres un agente inteligente que usa:
+        - Tools 'local_maf_query' y 'local_generate_random_number' del MCP local para lógica interna.
+        - Tools con prefijo 'github_' para interactuar con repositorios de GitHub.
+        - Tools con prefijo 'azure_' para interactuar con recursos de Azure.
+        Responde siempre de forma clara y técnica.
+        Usa las tools disponibles para responder preguntas del usuario.
     """,
-    name: "MafWithMultiMcpAgent",
+    name: "MafWithGitAndAzureMcpAgent",
     tools: aiTools);
 
-// 5. Usar el agente (tool calling automático sobre ambos MCP)
-var prompt = "Lista los últimos 5 archivos modificados en mi Google Drive usando tus herramientas MCP Pipedream.";
-Console.WriteLine($"[USER] {prompt}");
+// 6. Consola interactiva que invoca al agente
+Console.WriteLine("\n" + new string('=', 70));
+Console.WriteLine("CONSOLA INTERACTIVA - AGENTE MAF + GIT MCP + AZURE MCP ");
+Console.WriteLine(new string('=', 70));
 
-var result = await agent.RunAsync(prompt);
-Console.WriteLine($"[AGENT] {result}");
+while (true)
+{
+    Console.WriteLine("\n[USER] Introduce tu consulta (o 'salir' para terminar):");
+    Console.Write("> ");
+    var userQuery = Console.ReadLine() ?? string.Empty;
 
-// ----------------- Soporte -----------------
+    if (userQuery.Equals("salir", StringComparison.OrdinalIgnoreCase))
+    {
+        Console.WriteLine("[USER] ¡Hasta luego!");
+        break;
+    }
+
+    if (string.IsNullOrWhiteSpace(userQuery))
+    {
+        Console.WriteLine("[USER] ⚠️ Por favor, introduce una consulta válida.");
+        continue;
+    }
+
+    try
+    {
+        Console.WriteLine($"\n[AGENT] Procesando consulta...");
+        var result = await agent.RunAsync(userQuery);
+        Console.WriteLine($"\n[AGENT] Respuesta:");
+        Console.WriteLine(result);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"\n[AGENT] ❌ Error: {ex.Message}");
+    }
+}
+
+// --------- MÉTODOS HELPER ---------
+
+AIFunction CreateAzureMcpTool(McpClientTool mcpTool, McpClient client)
+{
+    Func<string, CancellationToken, Task<string>> azureFunc = async (query, ct) =>
+    {
+        Console.WriteLine($"[AZURE-MCP-TOOL] Invocando tool '{mcpTool.Name}' con query: '{query}'");
+        try
+        {
+            var parameters = new { name = mcpTool.Name, arguments = new { query } };
+            var response = await client.SendRequestAsync<object, JsonDocument>("tools/call", parameters);
+            var result = response.RootElement.TryGetProperty("result", out var resultProp)
+                ? resultProp.ToString()
+                : response.RootElement.ToString();
+
+            Console.WriteLine($"[AZURE-MCP-TOOL] Resultado obtenido: {result}");
+            return result ?? "No se obtuvo resultado.";
+        }
+        catch (Exception ex)
+        {
+            return $"Error al invocar Azure MCP tool '{mcpTool.Name}': {ex.Message}";
+        }
+    };
+
+    return AIFunctionFactory.Create(
+        azureFunc,
+        name: $"azure_{mcpTool.Name}",
+        description: $"[azure] {mcpTool.Description ?? $"Herramienta para interactuar con Azure: {mcpTool.Name}"}"
+    );
+}
 
 public static class McpToolMapper
 {
@@ -86,32 +178,8 @@ public static class McpToolMapper
         // Lo exponemos como tool para el agente
         return AIFunctionFactory.Create(
             fn,
-            name: $"{source}_{mcpTool.Name}",        // prefijo para diferenciar
+            name: $"{source}_{mcpTool.Name}",
             description: $"[{source}] {mcpTool.Description ?? $"MCP tool {mcpTool.Name}"}"
         );
-    }
-}
-
-public interface IAgentRunner
-{
-    Task<string> RunAsync(string userQuery, CancellationToken ct = default);
-}
-
-public class MafGeminiAgent : IAgentRunner
-{
-    private readonly IChatClient _client;
-
-    public MafGeminiAgent(IChatClient client) => _client = client;
-
-    public async Task<string> RunAsync(string userQuery, CancellationToken ct = default)
-    {
-        var messages = new List<ChatMessage>
-        {
-            new(ChatRole.System, "Eres un agente MAF que responde de forma breve y técnica."),
-            new(ChatRole.User, userQuery)
-        };
-
-        var completion = await _client.GetResponseAsync(messages, cancellationToken: ct);
-        return completion.ToString();
     }
 }

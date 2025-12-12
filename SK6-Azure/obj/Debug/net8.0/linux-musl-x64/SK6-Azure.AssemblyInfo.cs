@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SK6-Azure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9213d3d7d7452bc3881c4c331098a2e90aa0197a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e99e45ebce099cd25080724c329f536882034c45")]
 [assembly: System.Reflection.AssemblyProductAttribute("SK6-Azure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SK6-Azure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
