@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SK4-RabbitCons")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a86b15da2ef5d3357d1d1d1ffc5485ddc0fbf0f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c9d5db11dea71e5d263cbda02baa17b0675fc796")]
 [assembly: System.Reflection.AssemblyProductAttribute("SK4-RabbitCons")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SK4-RabbitCons")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

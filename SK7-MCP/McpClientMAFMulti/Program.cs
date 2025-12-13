@@ -127,37 +127,6 @@ while (true)
     }
 }
 
-// --------- MÉTODOS HELPER ---------
-
-AIFunction CreateAzureMcpTool(McpClientTool mcpTool, McpClient client)
-{
-    Func<string, CancellationToken, Task<string>> azureFunc = async (query, ct) =>
-    {
-        Console.WriteLine($"[AZURE-MCP-TOOL] Invocando tool '{mcpTool.Name}' con query: '{query}'");
-        try
-        {
-            var parameters = new { name = mcpTool.Name, arguments = new { query } };
-            var response = await client.SendRequestAsync<object, JsonDocument>("tools/call", parameters);
-            var result = response.RootElement.TryGetProperty("result", out var resultProp)
-                ? resultProp.ToString()
-                : response.RootElement.ToString();
-
-            Console.WriteLine($"[AZURE-MCP-TOOL] Resultado obtenido: {result}");
-            return result ?? "No se obtuvo resultado.";
-        }
-        catch (Exception ex)
-        {
-            return $"Error al invocar Azure MCP tool '{mcpTool.Name}': {ex.Message}";
-        }
-    };
-
-    return AIFunctionFactory.Create(
-        azureFunc,
-        name: $"azure_{mcpTool.Name}",
-        description: $"[azure] {mcpTool.Description ?? $"Herramienta para interactuar con Azure: {mcpTool.Name}"}"
-    );
-}
-
 public static class McpToolMapper
 {
     public static AIFunction ToAiFunction(
